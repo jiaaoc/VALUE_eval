@@ -212,26 +212,53 @@ class MnliProcessor(DataProcessor):
 
     def get_train_examples(self, data_dir):
         """See base class."""
-        return self._create_examples(self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+
+        value_type = None
+        if "VALUE_style_transfer" in data_dir:
+            value_type = 0
+        elif "VALUE" in data_dir:
+            value_type = 1
+        return self._create_examples(self._read_tsv(os.path.join(data_dir, "train.tsv")), "train", VALUE_type = value_type)
 
     def get_dev_examples(self, data_dir):
         """See base class."""
-        return self._create_examples(self._read_tsv(os.path.join(data_dir, "dev_matched.tsv")), "dev_matched")
+
+        value_type = None
+        if "VALUE_style_transfer" in data_dir:
+            value_type = 0
+        elif "VALUE" in data_dir:
+            value_type = 1
+
+        return self._create_examples(self._read_tsv(os.path.join(data_dir, "dev_matched.tsv")), "dev_matched", VALUE_type = value_type)
 
     def get_labels(self):
         """See base class."""
         return ["contradiction", "entailment", "neutral"]
 
-    def _create_examples(self, lines, set_type):
+    def _create_examples(self, lines, set_type, VALUE_type = None):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
             if i == 0:
                 continue
             guid = "%s-%s" % (set_type, line[0])
-            text_a = line[8]
-            text_b = line[9]
-            label = line[-1]
+
+
+
+            if VALUE_type is None:
+                text_a = line[8]
+                text_b = line[9]
+                label = line[-1]
+            elif VALUE_type == 0:
+                text_a = line[9]
+                text_b = line[10]
+                label = line[-3]
+            elif VALUE_type == 1:
+                text_a = line[10]
+                text_b = line[13]
+                label = line[19]
+
+            
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
         return examples
 
@@ -320,25 +347,48 @@ class Sst2Processor(DataProcessor):
 
     def get_train_examples(self, data_dir):
         """See base class."""
-        return self._create_examples(self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+        value_type = None
+        if "VALUE_style_transfer" in data_dir:
+            value_type = 0
+        elif "VALUE" in data_dir:
+            value_type = 1
+
+        return self._create_examples(self._read_tsv(os.path.join(data_dir, "train.tsv")), "train", VALUE_type = value_type)
 
     def get_dev_examples(self, data_dir):
         """See base class."""
-        return self._create_examples(self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+
+        value_type = None
+        if "VALUE_style_transfer" in data_dir:
+            value_type = 0
+        elif "VALUE" in data_dir:
+            value_type = 1
+
+
+        return self._create_examples(self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev", VALUE_type = value_type)
 
     def get_labels(self):
         """See base class."""
         return ["0", "1"]
 
-    def _create_examples(self, lines, set_type):
+    def _create_examples(self, lines, set_type, VALUE_type = None):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
             if i == 0:
                 continue
             guid = "%s-%s" % (set_type, i)
-            text_a = line[0]
-            label = line[1]
+
+            if VALUE_type is None:
+                text_a = line[0]
+                label = line[1]
+            elif VALUE_type == 0:
+                text_a = line[1]
+                label = line[2]
+            elif VALUE_type == 1:
+                text_a = line[2]
+                label = line[3]
+
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
         return examples
 
