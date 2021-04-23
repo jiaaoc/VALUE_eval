@@ -21,6 +21,7 @@ from torch.utils.data.dataset import Dataset
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data.sampler import RandomSampler, Sampler, SequentialSampler
 from tqdm.auto import tqdm, trange
+import pickle
 
 from .data.data_collator import DataCollator, DefaultDataCollator
 from .modeling_utils import PreTrainedModel
@@ -446,6 +447,7 @@ class Trainer:
         logger.info("  Total train batch size (w. parallel, distributed & accumulation) = %d", total_train_batch_size)
         logger.info("  Gradient Accumulation steps = %d", self.args.gradient_accumulation_steps)
         logger.info("  Total optimization steps = %d", t_total)
+        #logger.info("  n_gpu = %d", self.n_gpu)
 
         self.global_step = 0
         self.epoch = 0
@@ -1052,7 +1054,12 @@ class Trainer:
         if label_ids is not None:
             label_ids = label_ids.cpu().numpy()
 
+        
+
+
         if self.compute_metrics is not None and preds is not None and label_ids is not None:
+            with open(self.args.output_dir + '/test_result.pkl', 'wb') as f:
+                pickle.dump(preds, f)
             metrics = self.compute_metrics(EvalPrediction(predictions=preds, label_ids=label_ids))
         else:
             metrics = {}
