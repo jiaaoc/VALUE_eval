@@ -254,9 +254,14 @@ class MnliProcessor(DataProcessor):
                 text_b = line[10]
                 label = line[-3]
             elif VALUE_type == 1:
-                text_a = line[10]
-                text_b = line[13]
-                label = line[19]
+                if set_type == 'train':
+                    text_a = line[10]
+                    text_b = line[13]
+                    label = line[15]
+                else:
+                    text_a = line[10]
+                    text_b = line[13]
+                    label = line[19]
 
             
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
